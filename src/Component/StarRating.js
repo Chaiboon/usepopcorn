@@ -14,6 +14,7 @@ StarRating.propTypes = {
   maxRating: propTypes.number,
   color: propTypes.string,
   size: propTypes.number,
+  onSetRating: propTypes.func,
 };
 export default function StarRating({
   maxRating = 5,
@@ -34,9 +35,9 @@ export default function StarRating({
   };
   function handleRating(rating) {
     setRating(rating);
+    onSetRating(rating);
   }
   function hadleTempRating(tempRating) {
-    console.log(tempRating);
     setTempRating(tempRating);
   }
   function handleMouseLeave() {
@@ -47,7 +48,7 @@ export default function StarRating({
     <div style={containerStyle} className={className}>
       <div style={starContainerStyle}>
         {Array.from({ length: maxRating }, (_, i) => (
-          <span>
+          <span key={i}>
             <Star
               key={i}
               onRate={() => handleRating(i + 1)}
@@ -72,7 +73,7 @@ export default function StarRating({
   );
 }
 
-function Star({ key, onRate, full, onMoseOver, onMouseLeave, color, size }) {
+function Star({ onRate, full, onMoseOver, onMouseLeave, color, size }) {
   const starStyle = {
     width: `${size}px`,
     height: `${size}px`,
@@ -81,7 +82,6 @@ function Star({ key, onRate, full, onMoseOver, onMouseLeave, color, size }) {
   };
   return (
     <span
-      key={key}
       role="button"
       style={starStyle}
       onClick={onRate}
@@ -90,7 +90,6 @@ function Star({ key, onRate, full, onMoseOver, onMouseLeave, color, size }) {
     >
       {full ? (
         <svg
-          key={key}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill={color}
@@ -100,7 +99,6 @@ function Star({ key, onRate, full, onMoseOver, onMouseLeave, color, size }) {
         </svg>
       ) : (
         <svg
-          key={key}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
