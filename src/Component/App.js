@@ -7,20 +7,19 @@ import { MovieList } from "./MovieList";
 import { MovieDetails } from "./MovieDetails";
 import { Summary } from "./Summary";
 import { WatchedList } from "./WatchedList";
-
+import { useMovies } from "../useMovies";
+export const key = "fede68c4";
 export const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-export const key = "fede68c4";
-
 export default function App() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
+  const { movies, error, loading } = useMovies(query);
   function handleSelectedId(movieId) {
     setSelectedId((selectedId) => (movieId === selectedId ? null : movieId));
   }
@@ -29,54 +28,22 @@ export default function App() {
   }
   function handleWatched(movie) {
     setWatched((watched) => [...watched, movie]);
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
   function handleDelete(id) {
-    setWatched(watched.filter((movie) => movie.imdbID !== id));
+    console.log(id);
+    console.log(watched);
+    setWatched(watched.filter((movie) => movie.imdbId !== id));
   }
-
   useEffect(
     function () {
-      const controller = new AbortController();
-      async function fetchMovie() {
-        try {
-          setError("");
-          setLoading(true);
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${key}&s=${query}`,
-            { signal: controller.signal }
-          );
-
-          if (!res.ok)
-            throw new Error("Something went worng with fetching movies!");
-          const data = await res.json();
-          if (data.Response === "False") throw new Error("Search not found!");
-          setMovies(data.Search);
-          setError("");
-        } catch (err) {
-          if (err.name === "AbortError") {
-            setError(err);
-            console.log(err.message);
-          }
-        } finally {
-          setLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-      selectCloseMovie();
-      fetchMovie();
-      return function () {
-        controller.abort();
-      };
+      localStorage.setItem("watched", JSON.stringify(watched));
     },
-    [query]
+    [watched]
   );
+
   function handleQuery(e) {
-    e.preventDefault();
+    // e.preventDefault();
     setQuery(e.target.value);
   }
 
