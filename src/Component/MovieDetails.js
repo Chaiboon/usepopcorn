@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import StarRating from "./StarRating";
 import { Loader } from "./Loader";
 import { key } from "./App";
+import { useKey } from "../CustomHook/useKey";
 
 export function MovieDetails({
   selectedId,
@@ -13,6 +14,7 @@ export function MovieDetails({
   const [loading, setLoading] = useState(false);
   const [userRating, setUserRating] = useState("");
   const countRef = useRef(0);
+  useKey("Escape", selectCloseMovie);
 
   const {
     Title: title,
@@ -78,20 +80,7 @@ export function MovieDetails({
     },
     [title]
   );
-  useEffect(
-    function () {
-      function callback(e) {
-        if (e.code === "Escape") {
-          selectCloseMovie();
-        }
-      }
-      document.addEventListener("keydown", callback);
-      return function () {
-        document.removeEventListener("keydown", callback);
-      };
-    },
-    [selectCloseMovie]
-  );
+
   return (
     <div className="details">
       {loading ? (

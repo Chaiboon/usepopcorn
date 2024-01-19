@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavBar } from "./Navbar/Navbar";
 import { Search } from "./Navbar/Search";
 import { NumResult } from "./Navbar/NumResult";
@@ -7,7 +7,9 @@ import { MovieList } from "./MovieList";
 import { MovieDetails } from "./MovieDetails";
 import { Summary } from "./Summary";
 import { WatchedList } from "./WatchedList";
-import { useMovies } from "../useMovies";
+import { useMovies } from "../CustomHook/useMovies";
+import { useLocalStorageState } from "../CustomHook/useLocalStorageState";
+
 export const key = "fede68c4";
 export const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -15,10 +17,11 @@ export const average = (arr) =>
 export default function App() {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  const [watched, setWatched] = useState(function () {
-    const storedValue = localStorage.getItem("watched");
-    return JSON.parse(storedValue);
-  });
+  const [watched, setWatched] = useLocalStorageState([], "watch");
+  // const [watched, setWatched] = useState(function () {
+  //   const storedValue = localStorage.getItem("watched");
+  //   return JSON.parse(storedValue);
+  // });
   const { movies, error, loading } = useMovies(query);
   function handleSelectedId(movieId) {
     setSelectedId((selectedId) => (movieId === selectedId ? null : movieId));
@@ -35,22 +38,11 @@ export default function App() {
     console.log(watched);
     setWatched(watched.filter((movie) => movie.imdbId !== id));
   }
-  useEffect(
-    function () {
-      localStorage.setItem("watched", JSON.stringify(watched));
-    },
-    [watched]
-  );
-
-  function handleQuery(e) {
-    // e.preventDefault();
-    setQuery(e.target.value);
-  }
 
   return (
     <>
       <NavBar>
-        <Search query={query} handleQuery={handleQuery} />
+        <Search query={query} setQuery={setQuery} />
         <NumResult movies={movies} />
       </NavBar>
       <Main>
